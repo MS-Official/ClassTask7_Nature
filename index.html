@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Photo Gallery</title>
+
+    <!-- Link to main JavaScript -->
+    <script src="main.js" defer></script>
+
+    <!-- Link to External CSS -->
+    <link rel="stylesheet" href="./style/styles.css" />
+
+    <!-- For Notification Libraries -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Photo Gallery Application</h1>
+    </header>
+
+    <main>
+      <!-- Section for CRUD Actions -->
+      <section id="crud-section">
+        <h2>Manage Photos</h2>
+        <form id="addPhotoForm">
+          <input type="text" id="title" placeholder="Title" required /><br />
+          <input
+            type="text"
+            id="description"
+            placeholder="Description"
+            required
+          /><br />
+          <input type="text" id="url" placeholder="Image URL" required /><br />
+          <input
+            type="text"
+            id="uploaded_by"
+            placeholder="Uploaded By"
+            required
+          /><br />
+          <button type="submit">Add Photo</button>
+        </form>
+      </section>
+
+      <!-- Section for Photo Gallery -->
+      <section id="gallery-section">
+        <h2>Photo Gallery</h2>
+        <div id="gallery"></div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+<!-- Get All Records using AJAX
+
+Create an AJAX request to fetch and display all records on the page. -->
+
+<div id="gallery"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // Function to fetch all records
+    function fetchAllRecords() {
+      $.ajax({
+        url: 'get_all_records.php',
+        type: 'GET',
+        success: function(response) {
+          $('#gallery').empty(); // Clear the gallery first
+          if (response.length > 0) {
+            response.forEach(record => {
+              $('#gallery').append(`
+                <div class="gallery-item">
+                  <img src="${record.image}" alt="${record.title}" />
+                  <h3>${record.title}</h3>
+                  <p>${record.description}</p>
+                </div>
+              `);
+            });
+          } else {
+            $('#gallery').append('<p>No records found.</p>');
+          }
+        }
+      });
+    }
+
+    fetchAllRecords(); // Call the function to display all records
+  });
+</script>
+
+
+
+<!-- Add New Record using AJAX
+ Add a form where users can input new records, and use AJAX to send the data to the server. -->
+
+<form id="addRecordForm">
+    <input type="text" id="title" placeholder="Title" required><br>
+    <input type="text" id="description" placeholder="Description" required><br>
+    <input type="text" id="image" placeholder="Image File Name" required><br>
+    <input type="text" id="date_added" placeholder="Date Added (YYYY-MM-DD)" required><br>
+    <input type="text" id="category" placeholder="Category" required><br>
+    <button type="submit">Add Record</button>
+  </form>
+  
+  <script>
+    $('#addRecordForm').on('submit', function(e) {
+      e.preventDefault();
+  
+      var newRecord = {
+        title: $('#title').val(),
+        description: $('#description').val(),
+        image: $('#image').val(),
+        date_added: $('#date_added').val(),
+        category: $('#category').val()
+      };
+  
+      $.ajax({
+        url: 'add_record.php',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(newRecord),
+        success: function(response) {
+          alert(response.message);
+          if (response.message === "Record added successfully") {
+            fetchAllRecords(); // Refresh the gallery
+          }
+        }
+      });
+    });
+  </script>
+  
