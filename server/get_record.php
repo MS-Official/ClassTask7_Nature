@@ -1,28 +1,38 @@
-<!-- b. Get a Specific Record (PHP)
-
-Create a PHP file that retrieves a single record based on a specific id passed via the GET request.
-
-PHP File -->
-
 <?php
-// Get the ID from the query string
-$id = isset($_GET['id']) ? $_GET['id'] : null;
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-if ($id) {
-    // Read the JSON file
-    $data = file_get_contents('data.json');
-    // Decode the JSON data into an array
-    $records = json_decode($data, true);
-    
-    // Find the record by ID
-    foreach ($records as $record) {
-        if ($record['id'] == $id) {
-            echo json_encode($record);
-            exit;
-        }
+// Get the data from the POST request
+$data = json_decode(file_get_contents('php://input'), true);
+
+// Validate the input
+if (isset($data['id'])) {
+    $id = $data['id'];
+    $file = '../data/gallery.json';
+
+    // Ensure the file exists
+    if (!file_exists($file)) {
+        echo json_encode(["message" => "File not found"]);
+        exit;
     }
-    echo json_encode(["message" => "Record not found"]);
+
+    // Read data from the JSON file
+    $records = json_decode(file_get_contents($file), true);
+
+    // Find the record by ID
+    $record = array_filter($records, function ($item) use ($id) {
+        return $item['id'] === $id;
+    });
+
+    if (!empty($record)) {
+        // Return the first matched record
+        echo json_encode(array_values($record)[0]);
+    } else {
+        echo json_encode(["message" => "Record not found"]);
+    }
 } else {
-    echo json_encode(["message" => "No ID provided"]);
+    echo json_encode(["message" => "Invalid request: ID is required"]);
 }
 ?>

@@ -1,78 +1,125 @@
-<!-- Get All Records using AJAX
+<!DOCTYPE html>
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nature Photo Gallery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar-brand {
+            font-weight: 700;
+        }
+        .gallery-card {
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .gallery-card:hover {
+            transform: scale(1.05);
+        }
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        .modal-body img {
+            max-height: 70vh;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-camera-retro me-2"></i>Nature Photo Gallery</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <button class="nav-link btn btn-link text-light view-all-btn">
+                            <i class="fas fa-images me-1"></i> View All Photos
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link btn btn-link text-light add-new-btn">
+                            <i class="fas fa-plus-circle me-1"></i> Add New Photo
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-Create an AJAX request to fetch and display all records on the page. -->
+    <div class="container my-5">
+        <section id="allRecordsSection">
+            <h2 class="text-center mb-4">Nature Photo Collection</h2>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="gallery"></div>
+        </section>
 
-<div id="gallery"></div>
+        <section id="addRecordSection" style="display: none">
+            <h2 class="text-center mb-4" id="formTitle" >Add New Photo</h2>
+            <div class="form-container mx-auto" style="max-width: 500px">
+                <form id="addRecordForm" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="url" class="form-label">Image URL</label>
+                        <input type="text" class="form-control" id="url" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="uploaded_by" class="form-label">Uploaded By</label>
+                        <input type="text" class="form-control" id="uploaded_by" required />
+                    </div>
+                    <input type="hidden" id="date" value="" />
+                    <button type="submit" id="formSubmitButton" class="btn btn-primary w-100">
+                        <i class="fas fa-plus-circle me-1"></i> Add Photo
+                    </button>
+                </form>
+            </div>
+        </section>
+    </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-  $(document).ready(function() {
-    // Function to fetch all records
-    function fetchAllRecords() {
-      $.ajax({
-        url: 'get_all_records.php',
-        type: 'GET',
-        success: function(response) {
-          $('#gallery').empty(); // Clear the gallery first
-          if (response.length > 0) {
-            response.forEach(record => {
-              $('#gallery').append(`
-                <div class="gallery-item">
-                  <img src="${record.image}" alt="${record.title}" />
-                  <h3>${record.title}</h3>
-                  <p>${record.description}</p>
+    <!-- Image preview modal -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imagePreviewLabel">Image Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-              `);
-            });
-          } else {
-            $('#gallery').append('<p>No records found.</p>');
-          }
-        }
-      });
-    }
+                <div class="modal-body text-center">
+                    <img id="modalImage" src="" alt="" class="img-fluid rounded mb-3" />
+                    <h5 id="modalTitle" class="mb-2"></h5>
+                    <p id="modalDescription" class="mb-2"></p>
+                    <small id="modalMeta" class="text-muted"></small>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" id="editPhoto">Edit</button>
+                  <button type="button" class="btn btn-danger" id="deletePhoto">Delete</button>
+              </div>
+            </div>
+        </div>
+    </div>
 
-    fetchAllRecords(); // Call the function to display all records
-  });
-</script>
-
-
-
-<!-- Add New Record using AJAX
- Add a form where users can input new records, and use AJAX to send the data to the server. -->
-
-<form id="addRecordForm">
-    <input type="text" id="title" placeholder="Title" required><br>
-    <input type="text" id="description" placeholder="Description" required><br>
-    <input type="text" id="image" placeholder="Image File Name" required><br>
-    <input type="text" id="date_added" placeholder="Date Added (YYYY-MM-DD)" required><br>
-    <input type="text" id="category" placeholder="Category" required><br>
-    <button type="submit">Add Record</button>
-  </form>
-  
-  <script>
-    $('#addRecordForm').on('submit', function(e) {
-      e.preventDefault();
-  
-      var newRecord = {
-        title: $('#title').val(),
-        description: $('#description').val(),
-        image: $('#image').val(),
-        date_added: $('#date_added').val(),
-        category: $('#category').val()
-      };
-  
-      $.ajax({
-        url: 'add_record.php',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(newRecord),
-        success: function(response) {
-          alert(response.message);
-          if (response.message === "Record added successfully") {
-            fetchAllRecords(); // Refresh the gallery
-          }
-        }
-      });
-    });
-  </script>
-  
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="./js/script.js"></script>
+</body>
+</html>
+Í
